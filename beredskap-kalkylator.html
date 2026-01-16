@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beredskapsersättning - Kalkylator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2d5a87 0%, #1e3a5f 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e3a5f;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2d5a87;
+        }
+
+        .week-display {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #b8d4e3;
+        }
+
+        .week-display h3 {
+            color: #1e3a5f;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .days-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .day-card:hover {
+            border-color: #2d5a87;
+            transform: translateY(-2px);
+        }
+
+        .day-card.workday {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .day-card.holiday {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .day-card.weekend {
+            background: #e2e3e5;
+        }
+
+        .day-card .day-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .day-card .day-date {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .day-card .day-info {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .day-card .holiday-name {
+            font-size: 0.65rem;
+            color: #856404;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .results-section h3 {
+            color: #1e3a5f;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .results-table th {
+            background: #1e3a5f;
+            color: white;
+            font-weight: 600;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: #f1f3f4;
+        }
+
+        .results-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .results-table .number {
+            text-align: right;
+            font-family: 'Consolas', monospace;
+        }
+
+        .total-row {
+            background: #1e3a5f !important;
+            color: white;
+            font-weight: 700;
+        }
+
+        .total-row:hover {
+            background: #1e3a5f !important;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #28a745 0%, #20883a 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-box .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .summary-box .label {
+            opacity: 0.9;
+        }
+
+        .summary-box .percent {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-top: 5px;
+        }
+
+        .detail-section {
+            margin-top: 30px;
+        }
+
+        .detail-section h3 {
+            color: #1e3a5f;
+            margin-bottom: 15px;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .detail-table th,
+        .detail-table td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .detail-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .detail-table .rate-1400 { background: #e3f2fd; }
+        .detail-table .rate-1000 { background: #fff3e0; }
+        .detail-table .rate-700 { background: #fce4ec; }
+        .detail-table .rate-350 { background: #f3e5f5; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1e3a5f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5a87;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .instructions strong {
+            color: #856404;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .btn, .instructions {
+                display: none;
+            }
+            .day-card {
+                border: 1px solid #ccc !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Beredskapsersättning - Kalkylator</h1>
+            <p>Handelns tjänstemannaavtal | Beredskapstjänst II | Arbetstid 09:00-18:00</p>
+        </header>
+
+        <div class="content">
+            <div class="instructions">
+                <strong>Instruktion:</strong> Välj vecka och ange månadslön. Klicka på dagarna för att markera/avmarkera arbetsdagar.
+                Helgdagar identifieras automatiskt. Gröna dagar = arbetstid (ingen beredskapsersättning 09-18).
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="weekInput">Välj vecka</label>
+                    <input type="week" id="weekInput" value="">
+                </div>
+                <div class="input-group">
+                    <label for="salaryInput">Månadslön (kr)</label>
+                    <input type="number" id="salaryInput" value="40000" min="0" step="1000">
+                </div>
+            </div>
+
+            <div class="week-display">
+                <h3 id="weekTitle">Vecka</h3>
+                <div class="days-grid" id="daysGrid"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #d4edda; border-color: #28a745;"></div>
+                        <span>Arbetsdag</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: white;"></div>
+                        <span>Stängd dag</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fff3cd; border-color: #ffc107;"></div>
+                        <span>Helgdag</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>Ersättningsberäkning</h3>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Ersättningsnivå</th>
+                            <th>Period</th>
+                            <th class="number">Timmar</th>
+                            <th class="number">Divisor</th>
+                            <th class="number">Belopp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+
+                <div class="summary-box">
+                    <div class="label">Total beredskapsersättning</div>
+                    <div class="amount" id="totalAmount">0 kr</div>
+                    <div class="percent" id="totalPercent">0% av månadslönen</div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                        </svg>
+                        Exportera till PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>Detaljerad fördelning per dag</h3>
+                <table class="detail-table" id="detailTable">
+                    <thead>
+                        <tr>
+                            <th>Dag</th>
+                            <th>Datum</th>
+                            <th>Period</th>
+                            <th>Timmar</th>
+                            <th>Nivå</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            Baserat på Handelns tjänstemannaavtal (1 maj 2025 - 30 april 2027) | Beredskapstjänst II
+        </footer>
+    </div>
+
+    <script>
+        // Svenska helgdagar
+        function getSwedishHolidays(year) {
+            const holidays = {};
+
+            // Fasta helgdagar
+            holidays[`${year}-01-01`] = "Nyårsdagen";
+            holidays[`${year}-01-06`] = "Trettondagen";
+            holidays[`${year}-05-01`] = "Första maj";
+            holidays[`${year}-06-06`] = "Nationaldagen";
+            holidays[`${year}-12-24`] = "Julafton";
+            holidays[`${year}-12-25`] = "Juldagen";
+            holidays[`${year}-12-26`] = "Annandag jul";
+            holidays[`${year}-12-31`] = "Nyårsafton";
+
+            // Påsk (beräknas)
+            const easter = calculateEaster(year);
+            const easterDate = new Date(year, easter.month, easter.day);
+
+            // Skärtorsdag (3 dagar före påsk)
+            const maundyThursday = new Date(easterDate);
+            maundyThursday.setDate(easterDate.getDate() - 3);
+            holidays[formatDate(maundyThursday)] = "Skärtorsdag";
+
+            // Långfredag (2 dagar före påsk)
+            const goodFriday = new Date(easterDate);
+            goodFriday.setDate(easterDate.getDate() - 2);
+            holidays[formatDate(goodFriday)] = "Långfredag";
+
+            // Påskafton (1 dag före påsk)
+            const easterEve = new Date(easterDate);
+            easterEve.setDate(easterDate.getDate() - 1);
+            holidays[formatDate(easterEve)] = "Påskafton";
+
+            // Påskdagen
+            holidays[formatDate(easterDate)] = "Påskdagen";
+
+            // Annandag påsk (1 dag efter påsk)
+            const easterMonday = new Date(easterDate);
+            easterMonday.setDate(easterDate.getDate() + 1);
+            holidays[formatDate(easterMonday)] = "Annandag påsk";
+
+            // Kristi himmelsfärdsdag (39 dagar efter påsk)
+            const ascension = new Date(easterDate);
+            ascension.setDate(easterDate.getDate() + 39);
+            holidays[formatDate(ascension)] = "Kristi himmelsfärd";
+
+            // Pingstafton (48 dagar efter påsk)
+            const pentecostEve = new Date(easterDate);
+            pentecostEve.setDate(easterDate.getDate() + 48);
+            holidays[formatDate(pentecostEve)] = "Pingstafton";
+
+            // Pingstdagen (49 dagar efter påsk)
+            const pentecost = new Date(easterDate);
+            pentecost.setDate(easterDate.getDate() + 49);
+            holidays[formatDate(pentecost)] = "Pingstdagen";
+
+            // Midsommarafton (fredag mellan 19-25 juni)
+            const midsummerEve = getMidsummerEve(year);
+            holidays[formatDate(midsummerEve)] = "Midsommarafton";
+
+            // Midsommardagen (lördag mellan 20-26 juni)
+            const midsummerDay = new Date(midsummerEve);
+            midsummerDay.setDate(midsummerEve.getDate() + 1);
+            holidays[formatDate(midsummerDay)] = "Midsommardagen";
+
+            // Alla helgons dag (lördag mellan 31 okt - 6 nov)
+            const allSaints = getAllSaintsDay(year);
+            holidays[formatDate(allSaints)] = "Alla helgons dag";
+
+            return holidays;
+        }
+
+        function calculateEaster(year) {
+            // Meeus/Jones/Butcher algoritm
+            const a = year % 19;
+            const b = Math.floor(year / 100);
+            const c = year % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * l) / 451);
+            const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+            const day = ((h + l - 7 * m + 114) % 31) + 1;
+            return { month, day };
+        }
+
+        function getMidsummerEve(year) {
+            // Midsommarafton är fredagen mellan 19-25 juni
+            for (let day = 19; day <= 25; day++) {
+                const date = new Date(year, 5, day);
+                if (date.getDay() === 5) { // Fredag
+                    return date;
+                }
+            }
+        }
+
+        function getAllSaintsDay(year) {
+            // Alla helgons dag är lördagen mellan 31 okt - 6 nov
+            for (let day = 31; day <= 37; day++) {
+                const actualDay = day > 31 ? day - 31 : day;
+                const month = day > 31 ? 10 : 9;
+                const date = new Date(year, month, actualDay);
+                if (date.getDay() === 6) { // Lördag
+                    return date;
+                }
+            }
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Storhelgskategorier
+        const STORHELGER = ["Julafton", "Pingstafton", "Midsommarafton", "Nyårsafton", "Skärtorsdag"];
+        const REGULAR_HOLIDAYS = ["Trettondagen", "Första maj", "Kristi himmelsfärd", "Alla helgons dag"];
+
+        // Dagnamn
+        const DAY_NAMES = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+        const DAY_NAMES_SHORT = ["Sön", "Mån", "Tis", "Ons", "Tor", "Fre", "Lör"];
+
+        // State
+        let currentWeekStart = null;
+        let workDays = [true, true, true, true, true, false, false]; // Mån-Fre = arbete, Lör-Sön = ledigt
+        let holidays = {};
+
+        // Initialisera
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sätt nuvarande vecka som default
+            const now = new Date();
+            const weekInput = document.getElementById('weekInput');
+            weekInput.value = getWeekString(now);
+
+            updateWeek();
+
+            // Event listeners
+            weekInput.addEventListener('change', updateWeek);
+            document.getElementById('salaryInput').addEventListener('input', calculate);
+        });
+
+        function getWeekString(date) {
+            const year = date.getFullYear();
+            const week = getWeekNumber(date);
+            return `${year}-W${String(week).padStart(2, '0')}`;
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function getWeekStartDate(weekString) {
+            const [year, week] = weekString.split('-W').map(Number);
+            const jan4 = new Date(year, 0, 4);
+            const dayOfWeek = jan4.getDay() || 7;
+            const firstMonday = new Date(jan4);
+            firstMonday.setDate(jan4.getDate() - dayOfWeek + 1);
+            const weekStart = new Date(firstMonday);
+            weekStart.setDate(firstMonday.getDate() + (week - 1) * 7);
+            return weekStart;
+        }
+
+        function updateWeek() {
+            const weekInput = document.getElementById('weekInput');
+            if (!weekInput.value) return;
+
+            currentWeekStart = getWeekStartDate(weekInput.value);
+            const year = currentWeekStart.getFullYear();
+
+            // Ladda helgdagar för aktuellt år (och nästa om veckan går över årsskifte)
+            holidays = {
+                ...getSwedishHolidays(year),
+                ...getSwedishHolidays(year + 1)
+            };
+
+            // Återställ arbetsdagar för ny vecka
+            workDays = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentWeekStart);
+                date.setDate(currentWeekStart.getDate() + i);
+                const dayOfWeek = date.getDay();
+                const dateStr = formatDate(date);
+                const isHoliday = holidays[dateStr];
+
+                // Standard: Mån-Fre är arbetsdagar om det inte är helgdag
+                workDays[i] = (dayOfWeek >= 1 && dayOfWeek <= 5) && !isHoliday;
+            }
+
+            renderDaysGrid();
+            calculate();
+        }
+
+        function renderDaysGrid() {
+            const grid = document.getElementById('daysGrid');
+            const weekNum = getWeekNumber(currentWeekStart);
+            const year = currentWeekStart.getFullYear();
+
+            document.getElementById('weekTitle').textContent = `Vecka ${weekNum}, ${year}`;
+
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentWeekStart);
+                date.setDate(currentWeekStart.getDate() + i);
+                const dayOfWeek = date.getDay();
+                const dateStr = formatDate(date);
+                const holidayName = holidays[dateStr];
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                const card = document.createElement('div');
+                card.className = 'day-card';
+
+                if (workDays[i]) {
+                    card.classList.add('workday');
+                }
+                if (holidayName) {
+                    card.classList.add('holiday');
+                } else if (isWeekend) {
+                    card.classList.add('weekend');
+                }
+
+                card.innerHTML = `
+                    <div class="day-name">${DAY_NAMES_SHORT[(i + 1) % 7]}</div>
+                    <div class="day-date">${date.getDate()}/${date.getMonth() + 1}</div>
+                    <div class="day-info">${workDays[i] ? 'Arbete 09-18' : 'Stängd'}</div>
+                    ${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ''}
+                `;
+
+                card.addEventListener('click', () => toggleWorkDay(i));
+                grid.appendChild(card);
+            }
+        }
+
+        function toggleWorkDay(index) {
+            workDays[index] = !workDays[index];
+            renderDaysGrid();
+            calculate();
+        }
+
+        function calculate() {
+            if (!currentWeekStart) return;
+
+            const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+            const periods = calculatePeriods();
+
+            // Sammanställ per ersättningsnivå
+            const summary = {
+                1400: { hours: 0, label: "Grundersättning", period: "Vardagar kväll/natt" },
+                1000: { hours: 0, label: "Fredagskväll/natt", period: "Fre 18:00 - Lör 07:00" },
+                700: { hours: 0, label: "Helgersättning", period: "Lör 07:00 - Sön 24:00" },
+                350: { hours: 0, label: "Storhelg", period: "Storhelger" }
+            };
+
+            periods.forEach(p => {
+                summary[p.divisor].hours += p.hours;
+            });
+
+            // Rendera resultattabell
+            const resultsBody = document.getElementById('resultsBody');
+            resultsBody.innerHTML = '';
+
+            let totalHours = 0;
+            let totalAmount = 0;
+
+            Object.entries(summary).forEach(([divisor, data]) => {
+                if (data.hours > 0) {
+                    const amount = salary * data.hours / divisor;
+                    totalHours += data.hours;
+                    totalAmount += amount;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.label} (1/${divisor})</td>
+                        <td>${data.period}</td>
+                        <td class="number">${data.hours}</td>
+                        <td class="number">${divisor}</td>
+                        <td class="number">${formatCurrency(amount)}</td>
+                    `;
+                    resultsBody.appendChild(row);
+                }
+            });
+
+            // Total-rad
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td colspan="2"><strong>TOTALT</strong></td>
+                <td class="number"><strong>${totalHours}</strong></td>
+                <td></td>
+                <td class="number"><strong>${formatCurrency(totalAmount)}</strong></td>
+            `;
+            resultsBody.appendChild(totalRow);
+
+            // Uppdatera summering
+            document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+            const percent = salary > 0 ? (totalAmount / salary * 100).toFixed(2) : 0;
+            document.getElementById('totalPercent').textContent = `${percent}% av månadslönen`;
+
+            // Rendera detaljerad tabell
+            renderDetailTable(periods);
+        }
+
+        function calculatePeriods() {
+            const periods = [];
+
+            // Beredskapen börjar måndag 09:00 och slutar måndag 09:00 nästa vecka
+            // Vi behöver räkna ut varje tidsperiod och vilken ersättningsnivå som gäller
+
+            for (let dayIndex = 0; dayIndex < 8; dayIndex++) { // 8 dagar för att inkludera måndagmorgon
+                const date = new Date(currentWeekStart);
+                date.setDate(currentWeekStart.getDate() + dayIndex);
+                const dateStr = formatDate(date);
+                const dayOfWeek = date.getDay(); // 0=sön, 1=mån, ...
+                const holidayName = holidays[dateStr];
+
+                // Kolla om vi är i en storhelgsperiod
+                const storhelgStatus = getStorhelgStatus(date);
+
+                if (dayIndex === 0) {
+                    // Måndag - första dagen, börjar kl 09:00
+                    if (workDays[0]) {
+                        // Arbetsdag: beredskap 18:00-24:00
+                        periods.push(createPeriod(date, "18:00-24:00", 6, storhelgStatus));
+                    } else {
+                        // Stängd dag: beredskap 09:00-24:00
+                        periods.push(createPeriod(date, "09:00-24:00", 15, storhelgStatus));
+                    }
+                } else if (dayIndex === 7) {
+                    // Måndag nästa vecka - sista morgonen 00:00-09:00
+                    const morningStatus = getStorhelgStatus(date, true); // Kolla om storhelg fortsätter
+                    periods.push(createPeriod(date, "00:00-09:00", 9, morningStatus));
+                } else {
+                    // Dagar mitt i veckan
+                    const workDayIndex = dayIndex < 7 ? dayIndex : dayIndex - 7;
+                    const isWorkDay = workDayIndex < 7 && workDays[workDayIndex];
+
+                    // Natt 00:00-09:00 (eller 00:00-07:00 om specialtid börjar 07:00)
+                    const nightEnd = storhelgStatus.startsAt07 ? "07:00" : "09:00";
+                    const nightHours = storhelgStatus.startsAt07 ? 7 : 9;
+
+                    // Kolla gårdagens status för natten
+                    const prevDate = new Date(date);
+                    prevDate.setDate(date.getDate() - 1);
+                    const prevStorhelgStatus = getStorhelgStatus(prevDate);
+
+                    if (storhelgStatus.startsAt07) {
+                        // Natten innan storhelg börjar (00:00-07:00)
+                        periods.push(createPeriod(date, "00:00-07:00", 7, prevStorhelgStatus));
+
+                        if (isWorkDay) {
+                            // Om det är arbetsdag, jobba 09:00-18:00
+                            periods.push(createPeriod(date, "07:00-09:00", 2, storhelgStatus));
+                            periods.push(createPeriod(date, "18:00-24:00", 6, storhelgStatus));
+                        } else {
+                            periods.push(createPeriod(date, "07:00-24:00", 17, storhelgStatus));
+                        }
+                    } else {
+                        // Normal natt
+                        if (isWorkDay) {
+                            periods.push(createPeriod(date, "00:00-09:00", 9, prevStorhelgStatus.active ? prevStorhelgStatus : storhelgStatus));
+                            // Arbete 09:00-18:00, ingen ersättning
+                            periods.push(createPeriod(date, "18:00-24:00", 6, storhelgStatus));
+                        } else if (dayOfWeek === 6) {
+                            // Lördag: dela upp i 00:00-07:00 (1/1000) och 07:00-24:00 (1/700)
+                            periods.push(createPeriod(date, "00:00-07:00", 7, { divisor: 1000 }));
+                            periods.push(createPeriod(date, "07:00-24:00", 17, { divisor: 700, weekend: true }));
+                        } else if (dayOfWeek === 0) {
+                            // Söndag: hela dagen 1/700
+                            periods.push(createPeriod(date, "00:00-24:00", 24, { divisor: 700, weekend: true }));
+                        } else {
+                            // Annan ledig dag (ej helg)
+                            periods.push(createPeriod(date, "00:00-24:00", 24, storhelgStatus));
+                        }
+                    }
+                }
+            }
+
+            return periods.filter(p => p.hours > 0);
+        }
+
+        function getStorhelgStatus(date, isMorning = false) {
+            const dateStr = formatDate(date);
+            const dayOfWeek = date.getDay();
+            const holidayName = holidays[dateStr];
+
+            // Kolla om vi är inne i en storhelgsperiod
+            // Storhelger: Julafton, Pingstafton, Midsommarafton (från 07:00)
+            // Skärtorsdag, Nyårsafton (från 18:00)
+
+            // Kolla om denna dag är en storhelg som börjar 07:00
+            if (STORHELGER.includes(holidayName) && holidayName !== "Skärtorsdag" && holidayName !== "Nyårsafton") {
+                return { active: true, divisor: 350, startsAt07: true };
+            }
+
+            // Kolla om denna dag är Skärtorsdag eller Nyårsafton (börjar 18:00)
+            if (holidayName === "Skärtorsdag" || holidayName === "Nyårsafton") {
+                return { active: true, divisor: 350, startsAt18: true };
+            }
+
+            // Kolla om vi är i en pågående storhelgsperiod
+            // (från storhelgens start till 00:00 första vardagen efter)
+            const storhelgPeriod = isInStorhelgPeriod(date);
+            if (storhelgPeriod) {
+                return { active: true, divisor: 350 };
+            }
+
+            // Kolla vanliga helgdagar
+            if (REGULAR_HOLIDAYS.includes(holidayName)) {
+                // Dagen före från 18:00, själva dagen till 00:00 första vardagen
+                return { active: true, divisor: 700, isRegularHoliday: true };
+            }
+
+            // Kolla om vi är i vanlig helgdagsperiod
+            const holidayPeriod = isInHolidayPeriod(date);
+            if (holidayPeriod) {
+                return { active: true, divisor: 700 };
+            }
+
+            // Fredag 18:00 - Lördag 07:00
+            if (dayOfWeek === 5) {
+                return { active: false, divisor: 1400, fridayEvening: true };
+            }
+
+            // Lördag
+            if (dayOfWeek === 6) {
+                return { active: true, divisor: 700, weekend: true };
+            }
+
+            // Söndag
+            if (dayOfWeek === 0) {
+                return { active: true, divisor: 700, weekend: true };
+            }
+
+            // Vardagar
+            return { active: false, divisor: 1400 };
+        }
+
+        function isInStorhelgPeriod(date) {
+            // Kolla bakåt för att se om vi är i en storhelgsperiod
+            for (let i = 0; i < 7; i++) {
+                const checkDate = new Date(date);
+                checkDate.setDate(date.getDate() - i);
+                const checkDateStr = formatDate(checkDate);
+                const holidayName = holidays[checkDateStr];
+
+                if (STORHELGER.includes(holidayName)) {
+                    // Hitta första vardagen efter
+                    const firstWeekday = findFirstWeekdayAfterHoliday(checkDate);
+                    if (date < firstWeekday) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function isInHolidayPeriod(date) {
+            for (let i = 0; i < 5; i++) {
+                const checkDate = new Date(date);
+                checkDate.setDate(date.getDate() - i);
+                const checkDateStr = formatDate(checkDate);
+                const holidayName = holidays[checkDateStr];
+
+                if (REGULAR_HOLIDAYS.includes(holidayName)) {
+                    const firstWeekday = findFirstWeekdayAfterHoliday(checkDate);
+                    if (date < firstWeekday) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function findFirstWeekdayAfterHoliday(holidayDate) {
+            const nextDay = new Date(holidayDate);
+            nextDay.setDate(holidayDate.getDate() + 1);
+
+            while (true) {
+                const dayOfWeek = nextDay.getDay();
+                const dateStr = formatDate(nextDay);
+                const isHoliday = holidays[dateStr];
+
+                if (dayOfWeek >= 1 && dayOfWeek <= 5 && !isHoliday) {
+                    // Det är en vardag och inte helgdag
+                    const result = new Date(nextDay);
+                    result.setHours(0, 0, 0, 0);
+                    return result;
+                }
+                nextDay.setDate(nextDay.getDate() + 1);
+            }
+        }
+
+        function createPeriod(date, timeRange, hours, status) {
+            const dayOfWeek = date.getDay();
+            const dateStr = formatDate(date);
+
+            let divisor = status.divisor || 1400;
+
+            // Specialfall för fredag kväll
+            if (status.fridayEvening && timeRange.includes("18:00")) {
+                divisor = 1000;
+            }
+
+            // Specialfall för lördag morgon (00:00-07:00 fortfarande fredagskväll-tariff)
+            if (dayOfWeek === 6 && timeRange === "00:00-07:00") {
+                divisor = 1000;
+            }
+
+            // Weekend dagtid
+            if ((dayOfWeek === 6 && timeRange !== "00:00-07:00") || dayOfWeek === 0) {
+                if (!status.active || status.divisor > 700) {
+                    divisor = 700;
+                }
+            }
+
+            return {
+                date: new Date(date),
+                dateStr: dateStr,
+                dayName: DAY_NAMES[dayOfWeek],
+                timeRange: timeRange,
+                hours: hours,
+                divisor: divisor,
+                holiday: holidays[dateStr]
+            };
+        }
+
+        function renderDetailTable(periods) {
+            const tbody = document.getElementById('detailBody');
+            tbody.innerHTML = '';
+
+            periods.forEach(p => {
+                const row = document.createElement('tr');
+                row.className = `rate-${p.divisor}`;
+                row.innerHTML = `
+                    <td>${p.dayName}${p.holiday ? ' *' : ''}</td>
+                    <td>${p.date.getDate()}/${p.date.getMonth() + 1}</td>
+                    <td>${p.timeRange}</td>
+                    <td>${p.hours}</td>
+                    <td>1/${p.divisor}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('sv-SE', {
+                style: 'currency',
+                currency: 'SEK',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+    </script>
+</body>
+</html>
